@@ -137,19 +137,40 @@ hashtockControllers.controller('TagValuesCtrl',
     ['$scope', '$routeParams', '$q', 'TagValues', 'moment',
   function($scope, $routeParams, $q, TagValues, moment) {
 
-    $scope.durationOptions = [1, 7, 14, 30];
-    $scope.showingDays = 1;
+    $scope.durationOptions = [
+        {
+            'label':'1 day',
+            'duration': 1*24+'h',
+            'sampling': undefined // raw
+        },
+        {
+            'label':'week',
+            'duration': 7*24+'h',
+            'sampling': 'day'
+        },
+        {
+            'label':'2 weeks',
+            'duration': 14*24+'h',
+            'sampling': 'day'
+        },
+        {
+            'label':'4 weeks',
+            'duration': 28*24+'h',
+            'sampling': 'day'
+        }
+    ];
+    $scope.showingDays = $scope.durationOptions[0];
 
-    $scope.showDays = function(days) {
+    $scope.showDays = function(option) {
         $scope.loadingTagValues = true;
-        $scope.tagValues = TagValues.query({tag: $routeParams.tag, days: days}, function(values) {
+        $scope.tagValues = TagValues.query({tag: $routeParams.tag, duration: option.duration, sampling: option.sampling}, function(values) {
             for (var i = 0; i < values.length; i++) {
                 var date = new Date(values[i].date)
                 values[i].label = date;
                 values[i].value = values[i].count;
             };
 
-            $scope.showingDays = days;
+            $scope.showingDays = option;
             $scope.data = [{
                 key: '#' + $routeParams.tag,
                 values: values
