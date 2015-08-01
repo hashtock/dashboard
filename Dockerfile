@@ -1,14 +1,23 @@
-FROM nginx:1.9
+FROM alpine:3.2
 
-WORKDIR /usr/share/nginx/html/static
-ADD . /usr/share/nginx/html/static
+RUN apk add --update nginx && \
+    rm -rf /var/cache/apk/*
 
-RUN \
-    apt-get update && \
-    apt-get install -qq -y npm git && \
+WORKDIR /dashboard/
+ADD . /dashboard/
+ADD nginx.conf /etc/nginx/nginx.conf
+
+RUN apk add -U nodejs git && \
     npm install -g bower && \
-    ln -s /usr/bin/nodejs /usr/bin/node && \
     bower --allow-root install && \
-    apt-get purge -y npm git && \
-    apt-get autoremove -y && \
-    rm -rf /usr/local/lib/node_modules
+    apk del nodejs git && \
+    rm -rf /usr/lib/node_modules && \
+    rm -rf /root/.npm && \
+    rm -rf /root/.cache && \
+    rm -rf /tmp/* && \
+    rm -f nginx.conf && \
+    rm -rf /var/cache/apk/*
+
+EXPOSE 80 443
+
+CMD nginx

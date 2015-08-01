@@ -2,4 +2,4 @@ Dockerfile
 .dockerignore
 .git
 
-vendor
+*/vendor

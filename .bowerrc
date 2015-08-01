@@ -1,4 +1,4 @@
 {
-  "directory": "vendor",
+  "directory": "static/vendor",
   "interactive": false
 }
