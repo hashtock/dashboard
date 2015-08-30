@@ -159,7 +159,7 @@ hashtockControllers.controller('TagValuesCtrl',
             'sampling': 'day'
         }
     ];
-    $scope.showingDays = $scope.durationOptions[0];
+    $scope.currentDuration = $scope.durationOptions[0];
 
     $scope.showDays = function(option) {
         $scope.loadingTagValues = true;
@@ -170,7 +170,7 @@ hashtockControllers.controller('TagValuesCtrl',
                 values[i].value = values[i].count;
             };
 
-            $scope.showingDays = option;
+            $scope.currentDuration = option;
             $scope.data = [{
                 key: '#' + $routeParams.tag,
                 values: values
@@ -178,11 +178,11 @@ hashtockControllers.controller('TagValuesCtrl',
             $scope.loadingTagValues = false;
         });
     }
-    $scope.showDays($scope.showingDays);
+    $scope.showDays($scope.currentDuration);
 
     $scope.formatDate = function(d) {
-        switch ($scope.showingDays) {
-            case 1: return moment(d).format("HH:mm");
+        switch ($scope.currentDuration.duration) {
+            case '24h': return moment(d).format("HH:mm");
             default: return moment(d).format("D MMM");
         }
     }
