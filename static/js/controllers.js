@@ -72,7 +72,7 @@ hashtockControllers.controller('TagDetailCtrl',
     }
 
     $scope.canExecuteOrder = function() {
-        if ($scope.newOrder === undefined || $scope.newOrder.quantity == 0) {
+        if ($scope.newOrder === undefined || $scope.newOrder.quantity == 0 || $scope.orderUnitPrice() <= 0) {
             return false
         }
 
@@ -250,3 +250,29 @@ hashtockControllers.controller('TagValuesCtrl',
         }
     }
 }]);
+
+hashtockControllers.controller('MarketCtrl', ['$scope', '$routeParams', 'Portfolio', 'Balance', 'Order',
+    function($scope, $routeParams, Portfolio, Balance, Order) {
+        $scope.marketOrders = Order.pending({type: 'market'});
+        $scope.balance = Balance.get();
+        $scope.share = Portfolio.tag({tag: $routeParams.tag});
+
+        $scope.fulfilOrder = function(order) {
+            order.$fulfil();
+        };
+
+        $scope.canFulfilOrder = function(order) {
+            // Buy market order
+            if (order.quantity > 0) {
+                return $scope.share.quantity >= order.quantity;
+            }
+
+            // Sell market order
+            if (order.quantity < 0) {
+                return $scope.balance.cash >= order.value;
+            }
+
+            return false;
+        };
+    }
+]);

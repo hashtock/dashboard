@@ -24,7 +24,7 @@ hashtockServices.factory('User', ['$resource', function($resource){
 
 hashtockServices.factory('Order', ['$resource', function($resource){
     return $resource('/api/order/:uuid/', {}, {
-        pending: {method:'GET', isArray:true},
+        pending: {method:'GET', params:{type:undefined}, isArray:true},
         history: {method: 'GET', params:{uuid:'history'}, isArray:true},
         successful: {method: 'GET', params:{uuid:'history', tag:undefined, resolution:"success"}, isArray:true},
         get: {method: 'GET', params:{uuid:'@uuid'}, isArray:false},
