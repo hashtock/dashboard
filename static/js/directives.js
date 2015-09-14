@@ -12,17 +12,21 @@ hashtockDirectives.directive('ionslider',function(){
             max:'=',
             from: '=',
             step:'@',
+            postfix:'@',
             action:'&'
         },
         controller: function($rootScope, $scope, $element){
             (function init(){
+                var postfix = $scope.postfix ? ' ' + $scope.postfix : '';
+
                 $($element).ionRangeSlider({
-                    type: "single",
+                    type: 'single',
                     grid: false,
                     min: $scope.min,
                     max: $scope.max,
                     from: $scope.from,
                     step: $scope.step,
+                    postfix: postfix,
                     onChange: function(data) {
                         $scope.action({'data':data.from});
                     }

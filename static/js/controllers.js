@@ -66,18 +66,30 @@ hashtockControllers.controller('TagDetailCtrl',
         $scope.$apply();
     }
 
+    $scope.shareUnitPriceChanged = function(data) {
+        $scope.newOrder.unit_price = data;
+        $scope.$apply();
+    }
+
     $scope.canExecuteOrder = function() {
-        if ($scope.newOrder === undefined || $scope.newOrder.quantity == 0) {
+        if ($scope.newOrder === undefined || $scope.newOrder.quantity == 0 || $scope.orderUnitPrice() <= 0) {
             return false
         }
 
         // Buy
-        if ($scope.newOrder.type === 'bank' && $scope.newOrder.quantity > 0) {
-            return ($scope.newOrder.quantity <= $scope.maxSharesToBuy)
+        if ($scope.newOrder.quantity > 0)
+        {
+            if ($scope.newOrder.type === 'bank') {
+                return ($scope.newOrder.quantity <= $scope.maxSharesToBuy)
+            }
+
+            if ($scope.newOrder.type === 'market') {
+                return ($scope.newOrder.quantity * $scope.newOrder.unit_price <= $scope.balance.cash)
+            }
         }
 
         // Sell
-        if ($scope.newOrder.type === 'bank' && $scope.newOrder.quantity < 0) {
+        if ($scope.newOrder.quantity < 0) {
             return ($scope.newOrder.quantity >= -$scope.maxSharesToSell)
         }
 
@@ -106,12 +118,32 @@ hashtockControllers.controller('TagDetailCtrl',
         return $scope.maxSharesToBuy > 0.1 || $scope.maxSharesToSell > 0.1;
     }
 
-    $scope.isDealingWithBank = function() {
+    $scope.canPlaceMarketOrder = function () {
+        return  $scope.balance.cash > 0 || $scope.maxSharesToSell > 0.1;
+    }
+
+    $scope.isPlacingBankOrder = function() {
         return ($scope.newOrder && $scope.newOrder.type === 'bank');
+    }
+
+    $scope.isPlacingMarketOrder = function() {
+        return ($scope.newOrder && $scope.newOrder.type === 'market');
     }
 
     $scope.isOrderInProgress = function() {
         return ($scope.newOrder !== undefined);
+    }
+
+    $scope.orderUnitPrice = function() {
+        if ($scope.isPlacingBankOrder()){
+            return $scope.tag.value;
+        }
+
+        if ($scope.isPlacingMarketOrder()){
+            return $scope.newOrder.unit_price;
+        }
+
+        return 0
     }
 
     $scope.cancelOrder = function() {
@@ -123,6 +155,15 @@ hashtockControllers.controller('TagDetailCtrl',
             type: 'bank',
             hashtag: $scope.tag.hashtag,
             quantity: 0
+        });
+    }
+
+    $scope.newMarketOrder = function() {
+        $scope.newOrder = new Order({
+            type: 'market',
+            hashtag: $scope.tag.hashtag,
+            quantity: 0,
+            unit_price: 0
         });
     }
 
@@ -209,3 +250,29 @@ hashtockControllers.controller('TagValuesCtrl',
         }
     }
 }]);
+
+hashtockControllers.controller('MarketCtrl', ['$scope', '$routeParams', 'Portfolio', 'Balance', 'Order',
+    function($scope, $routeParams, Portfolio, Balance, Order) {
+        $scope.marketOrders = Order.pending({type: 'market'});
+        $scope.balance = Balance.get();
+        $scope.share = Portfolio.tag({tag: $routeParams.tag});
+
+        $scope.fulfilOrder = function(order) {
+            order.$fulfil();
+        };
+
+        $scope.canFulfilOrder = function(order) {
+            // Buy market order
+            if (order.quantity > 0) {
+                return $scope.share.quantity >= order.quantity;
+            }
+
+            // Sell market order
+            if (order.quantity < 0) {
+                return $scope.balance.cash >= order.value;
+            }
+
+            return false;
+        };
+    }
+]);
