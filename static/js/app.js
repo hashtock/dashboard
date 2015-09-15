@@ -46,12 +46,12 @@ hashtockApp.run(function ($rootScope, $location, User) {
 
         User.get(function(user) {
             if (user.email === undefined) {
-                window.location = "/auth/login/?continue=" + encodeURIComponent($location.absUrl());
+                window.location = "/auth/login/gplus/?continue=" + encodeURIComponent($location.absUrl());
             } else {
                 $rootScope.loggedIn = true;
             }
         }, function() {
-            window.location = "/auth/login/?continue=" + encodeURIComponent($location.absUrl());
+            window.location = "/auth/login/gplus/?continue=" + encodeURIComponent($location.absUrl());
         });
     });
 });
