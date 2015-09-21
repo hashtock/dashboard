@@ -1,3 +1,20 @@
 td.collapsed {
     width: 1px;
 }
+
+.img-responsive {
+    margin: 0 auto 20px;
+}
+
+.home h1 {
+    text-align: center;
+}
+
+.home p {
+    font-size: larger;
+    text-align: center;
+}
+
+.home .row {
+    margin-bottom: 2em;
+}

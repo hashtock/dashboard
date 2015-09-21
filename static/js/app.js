@@ -16,6 +16,10 @@ var hashtockApp = angular.module('hashtockApp', [
 hashtockApp.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.
+        when('/home', {
+            templateUrl: '/static/partials/home.html'
+        }).
+
         when('/portfolio', {
             templateUrl: '/static/partials/portfolio-table.html',
             controller: 'PortfolioCtrl'
@@ -33,14 +37,27 @@ hashtockApp.config(['$routeProvider',
             controller: 'OrderListCtrl'
         }).
         otherwise({
-            redirectTo: '/portfolio'
+            redirectTo: '/home'
         });
     }
 ]);
 
 hashtockApp.run(function ($rootScope, $location, User) {
-    $rootScope.$on('$routeChangeStart', function () {
+    $rootScope.$on('$routeChangeStart', function (event, next, current) {
+        var redirectTo;
         if ($rootScope.loggedIn) {
+            return;
+        }
+
+        if (next && next.redirectTo) {
+            redirectTo = next.redirectTo;
+        } else if (current && current.redirectTo) {
+            redirectTo = current.redirectTo;
+        } else if (next && next.$$route && next.$$route.originalPath) {
+            redirectTo = next.$$route.originalPath;
+        }
+
+        if (redirectTo == '/home') {
             return;
         }
 
